@@ -17,14 +17,13 @@
 */
 
 import { addContextMenuPatch, findGroupChildrenByChildId, NavContextMenuPatchCallback, removeContextMenuPatch } from "@api/ContextMenu";
+import { ReplyIcon } from "@components/Icons";
 import { Devs } from "@utils/constants";
-import { LazyComponent } from "@utils/react";
 import definePlugin from "@utils/types";
-import { findByCode, findByCodeLazy } from "@webpack";
+import { findByCodeLazy } from "@webpack";
 import { ChannelStore, i18n, Menu, PermissionsBits, PermissionStore, SelectedChannelStore } from "@webpack/common";
 import { Message } from "discord-types/general";
 
-const ReplyIcon = LazyComponent(() => findByCode("M10 8.26667V4L3 11.4667L10 18.9333V14.56C15 14.56 18.5 16.2667 21 20C20 14.6667 17 9.33333 10 8.26667Z"));
 
 const replyFn = findByCodeLazy("showMentionToggle", "TEXTAREA_FOCUS", "shiftKey");
 
@@ -33,7 +32,7 @@ const messageContextMenuPatch: NavContextMenuPatchCallback = (children, { messag
     if (SelectedChannelStore.getChannelId() !== message.channel_id) return;
     const channel = ChannelStore.getChannel(message?.channel_id);
     if (!channel) return;
-    if (!PermissionStore.can(PermissionsBits.SEND_MESSAGES, channel)) return;
+    if (channel.guild_id && !PermissionStore.can(PermissionsBits.SEND_MESSAGES, channel)) return;
 
     // dms and group chats
     const dmGroup = findGroupChildrenByChildId("pin", children);
